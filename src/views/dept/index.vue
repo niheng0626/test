@@ -161,8 +161,8 @@ const deleteDept = async (id) => {
 </script>
 
 <template>
+  <h1>部门管理</h1>
   <div class="department-management">
-    <h1>部门管理</h1>
     <div class="action-bar">
       <el-button type="primary" @click="addDept">+ 添加部门</el-button>
     </div>
