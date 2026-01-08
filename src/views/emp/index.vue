@@ -138,6 +138,48 @@ const beforeAvatarUpload = (rawFile) => {
   }
   return true;
 };
+
+//添加员工工作经历
+const addExprience = () => {
+  employee.value.exprList.push({
+    company: "",
+    job: "",
+    begin: "",
+    end: "",
+    exprDate: [],
+  });
+};
+//删除员工工作经历
+const deleteExprience = (index) => {
+  employee.value.exprList.splice(index, 1);
+};
+//侦听employee员工对象中的工作经历信息
+/**
+ * 监听employee对象中exprList的变化
+ * 当exprList发生变化时，遍历其中的每个expr对象，将其exprDate数组的前两个元素分别赋值给begin和end属性
+ * @param {Array} newValue - exprList的新值
+ * @param {Array} oldValue - exprList的旧值
+ */
+watch(
+  () => employee.value.exprList,
+  (newValue, oldValue) => {
+    if (employee.value.exprList && employee.value.exprList.length > 0) {
+      employee.value.exprList.forEach((expr) => {
+        // 安全访问exprDate数组
+        if (
+          expr &&
+          expr.exprDate &&
+          Array.isArray(expr.exprDate) &&
+          expr.exprDate.length >= 2
+        ) {
+          expr.begin = expr.exprDate[0];
+          expr.end = expr.exprDate[1];
+        }
+      });
+    }
+  },
+  { deep: true }
+);
 </script>
 
 <template>
@@ -256,6 +298,7 @@ const beforeAvatarUpload = (rawFile) => {
   </div>
   <!-- 新增/修改员工的对话框 -->
   <el-dialog v-model="dialogVisible" :title="dialogTitle">
+    {{ employee }}
     <el-form :model="employee" label-width="80px">
       <!-- 基本信息 -->
       <!-- 第一行 -->
@@ -387,7 +430,7 @@ const beforeAvatarUpload = (rawFile) => {
       <el-row :gutter="10">
         <el-col :span="24">
           <el-form-item label="工作经历">
-            <el-button type="success" size="small" @click=""
+            <el-button type="success" size="small" @click="addExprience"
               >+ 添加工作经历</el-button
             >
           </el-form-item>
@@ -395,7 +438,7 @@ const beforeAvatarUpload = (rawFile) => {
       </el-row>
 
       <!-- 第七行 ...  工作经历 -->
-      <el-row :gutter="3">
+      <el-row :gutter="3" v-for="(expr, index) in employee.exprList">
         <el-col :span="10">
           <el-form-item size="small" label="时间" label-width="80px">
             <el-date-picker
@@ -405,25 +448,31 @@ const beforeAvatarUpload = (rawFile) => {
               end-placeholder="结束日期"
               format="YYYY-MM-DD"
               value-format="YYYY-MM-DD"
+              v-model="expr.exprDate"
             ></el-date-picker>
           </el-form-item>
         </el-col>
 
         <el-col :span="6">
           <el-form-item size="small" label="公司" label-width="60px">
-            <el-input placeholder="请输入公司名称"></el-input>
+            <el-input
+              placeholder="请输入公司名称"
+              v-model="expr.company"
+            ></el-input>
           </el-form-item>
         </el-col>
 
         <el-col :span="6">
           <el-form-item size="small" label="职位" label-width="60px">
-            <el-input placeholder="请输入职位"></el-input>
+            <el-input placeholder="请输入职位" v-model="expr.job"></el-input>
           </el-form-item>
         </el-col>
 
         <el-col :span="2">
           <el-form-item size="small" label-width="0px">
-            <el-button type="danger">- 删除</el-button>
+            <el-button type="danger" @click="deleteExprience(index)"
+              >- 删除</el-button
+            >
           </el-form-item>
         </el-col>
       </el-row>
